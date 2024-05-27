@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState, useRef } from "react";
 import { IoSearchOutline } from "react-icons/io5";
 import { useDispatch, useSelector } from "react-redux";
 import { setIsRestaurantsSearchResultsVisible, setRestaurantsFiltered, setRestaurantsSearch, setRestaurantsSearchResults } from "../redux/shoppersSlice";
@@ -98,29 +98,34 @@ const SearchBar = () => {
       });
     }
   }
+  
+  const inputRef = useRef(null);
+  
 
   return (
-    <div className="h-12 w-full flex flex-1 relative">
+    <div className= " -mt-16 h-12 w-4/12 flex flex-1 justify-center z-40 fixed top-20 z-40 ">
+      
       <input
         id={RESTAURANT_INPUT_ID}
-        className="h-full w-full rounded-full px-4 text-dark text-base outline-none border-[1px] border-transparent focus-visible:border-dark duraction-200
-  shadow-md"
+        className={` h-full w-4/12 rounded-full px-4 text-dark text-base outline-none border-[1px] border-transparent focus-visible:border-dark duraction-200
+  shadow-md flex flex-1 justify-center`}
         type="text"
         onChange={onSearchChange}
         placeholder={searchBarPlaceHolderText}
         value={restaurantSearch?.input || ''}
         onClick={onClickInput}
       />
-      <span className="absolute w-12 h-12 rounded-full flex items-center justify-center top-50 right-0 bg-dark text-smoke text-xl">
+      
+      <span className=" -ml-10 mr-10 w-12 h-12 rounded-full flex items-center justify-center top-50 right-0 bg-dark text-smoke text-xl">
         <IoSearchOutline />
       </span>
       
       {
         isRestaurantsSearchResultsVisible &&
-        <ul className="search-results text-dark text-base border-[1px] shadow-md">
+        <ul className="search-results w-52 text-dark text-base border-[1px] shadow-md z-40">
           {
             searchResults?.map((prediction: any) => (
-              <li key={prediction.place_id} className="search-result-item">
+              <li key={prediction.place_id} className="search-result-item ">
                 <button id={prediction.place_id} className="w-full" onClick={onSelectResult} onSelect={onSelectResult}>{prediction.description}</button>
               </li>
             ))
@@ -132,6 +137,7 @@ const SearchBar = () => {
         </ul>
       }
     </div>
+    
   );
 };
 
