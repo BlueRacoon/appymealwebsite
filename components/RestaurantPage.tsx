@@ -1,5 +1,5 @@
 import Link from "next/link";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Spacer } from "./Spacer";
 import Image from "next/image";
 import { PopupModal } from "./PopupModal";
@@ -47,6 +47,7 @@ export const RestaurantPage: React.FC<RestaurantPageProps> = ({
   //   GET THE CURRENT TIME AND UPDATES IT IN REDUX
   const militaryTime = useSelector((state: any) => state.shopper.militaryTime);
   const updateTime = useUpdateTime();
+  
 
   useEffect(() => {
     updateTime();
@@ -113,9 +114,49 @@ export const RestaurantPage: React.FC<RestaurantPageProps> = ({
     return formattedStartTime + " - " + formattedEndTime;
   };
 
+
+
+
+
+// Function to scroll to a category section
+
+
+
+const [isSticky, setIsSticky] = useState(false);
+const stickyMenuRef = useRef<HTMLDivElement>(null);
+const menuSectionRefs = React.useRef<HTMLDivElement[]>([]);
+
+
+
+
+
+function StickyHeader() {
+  
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      const bottomOffset = document.documentElement.scrollHeight - window.innerHeight;
+      setIsSticky(scrollTop > bottomOffset * 0.1);
+
+      // Stick when the user has scrolled more than 70% of the way down
+       // Adjust the factor as needed
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [isSticky]);
+}
+StickyHeader()
+
+
+
+
   return (
     <div className="w-full h-full flex-1">
-      <div className="w-full h-12 lg:h-14 bg-white justify-center items-center flex flex-row flex-nowrap lg:sticky top-20 z-5">
+      <div className="w-full h-12 lg:h-14 bg-white justify-center items-center flex flex-row flex-nowrap z-5">
         <div className="w-full justify-start px-10 basis-full lg:flx-basis-1/4 py-2 lg:py-0 ">
           <p
             onClick={() => {
@@ -154,13 +195,14 @@ export const RestaurantPage: React.FC<RestaurantPageProps> = ({
         </div>
       </div>
       {/* TOP NAVBAR FOR RESTAURANTS */}
-      <div className="bg-smoke w-full h-40  items-center flex pg-4 gap-2  px-8 lg:px-16 justify-between">
+      <div className = "flex flex-row items-center ">
+      <div className="p-4 ml-28  bg-smoke w-1/4 h-1/3  flex flex-col pg-4 gap-2  px-8 lg:px-16 justify-between rounded-md">
         <div className="flex flex-col md:flex-row items-center">
           <div className="justify-start">
             <Image
               src={restaurant.photo}
-              width={125}
-              height={125}
+              width={150}
+              height={150}
               alt="restaurantLogo"
               className="object-cover rounded-xl cursor-pointer"
               // onClick={() => {
@@ -169,11 +211,9 @@ export const RestaurantPage: React.FC<RestaurantPageProps> = ({
             />
           </div>
           <div className="hidden md:flex md:flex-col justify-start pl-8">
-            <p className="text-sm md:text-xl font-semibold text-dark">
-              Ordering From:
-            </p>
+            
             <p
-              className="font-semibold text-sm md:text-xl hover:text-lightdark duration-200 cursor-pointer text-dark"
+              className="font-semibold text-sm md:text-xl hover:text-lightdark duration-200 cursor-pointer text-dark bg-smoke"
               // onClick={() => {
               //   router.push(`restaurants/${restaurant.name}`);
               // }}
@@ -182,7 +222,7 @@ export const RestaurantPage: React.FC<RestaurantPageProps> = ({
             </p>
           </div>
         </div>
-        <div className="flex flex-col justify-start items-start gap-1 md:gap-0 ml-2 md:ml-0">
+        <div className=" bg-smoke flex flex-col justify-start items-start gap-1 md:gap-0 ml-2 md:ml-0">
           <p className="text-dark text-sm md:text-lg">
             {restaurant.address || restaurant.address_line_1}, {restaurant.city || restaurant.address_city}, {restaurant.state || restaurant.address_state_province_id}
           </p>
@@ -194,9 +234,11 @@ export const RestaurantPage: React.FC<RestaurantPageProps> = ({
           </div>
         </div>
       </div>
+      <p className="ml-10 w-1/3 text-dark font-semibold bg-smoke p-6 rounded-md">{restaurant.desc || restaurant.description}</p>
+      </div>
       <div className="w-full h-full flex flex-row flex-wrap lg:flex-nowrap  py-12 ">
         <div className="basis-full lg:basis-2/3 lg:flex-1 flex-auto flex flex-col  px-4 lg:px-16">
-          <p className="text-dark">{restaurant.desc || restaurant.description}</p>
+          
           {/* restaurant photos extra */}
           <div className="mt-12 flex flex-row w-full overflow-x-scroll md:overflow-x-auto md:flex-wrap">
             {restaurant.images.map((image: string) => {
@@ -218,86 +260,156 @@ export const RestaurantPage: React.FC<RestaurantPageProps> = ({
               );
             })}
           </div>
+          {}
+          {}
           {/* MENU ITEMS START */}
+          <hr className = "mt-10 mb-0"/>
+          <div   ref={stickyMenuRef} className = {`xl:text-lg lg:text-small md:text-small sm:text-xs flex flex-row  justify-center  bg-white  ${isSticky && !modalOpen ? 'z-10 fixed w-8/12 top-20 left-0 mr-10' : 'relative'}`} >
+
+          {/* clickable menu scroll links*/}  
           {Object.entries(restaurant.menus)
             .filter(([category]) => category !== "properties")
-            .map(([category, items]) => {
-              const categoryProperties = restaurant.menus.properties.find(
-                (property: any) => property.name === category
-              );
+            .map(([category, index] ) => {
+              const handleMenuLinkClick = (category: string) => {
+                const targetSection = menuSectionRefs.current[category];
+                if (targetSection) {
+                  const sectionRect = targetSection.getBoundingClientRect();
+                  const sectionTop = sectionRect.top;
+                  const stickyMenuHeight = stickyMenuRef.current?.offsetHeight || 0;
+              
+                  // Calculate the offset to align the top of the section with the bottom of the sticky menu
+                  const offset = sectionTop - stickyMenuHeight;
+                  
+              
+                  // Adjust the scroll position to account for the sticky menu height
+                  
+                 if (isSticky){
+                  scrollToWithDuration(offset -100, 500);
 
-              if (categoryProperties && !(categoryProperties.isShowing || categoryProperties.enable_showing)) {
-                return null; // Skip the category if isShowing is false
-              }
-
+                 }
+                    else{
+                      scrollToWithDuration(offset -230, 500);
+                    }
+                    
+                  
+                }
+              };
+              const scrollToWithDuration = (targetOffset: number, duration: number) => {
+                const startingY = window.pageYOffset;
+                let start: number | null = null;
+              
+                const step = (timestamp: number) => {
+                  if (!start) start = timestamp;
+                  const time = timestamp - start;
+                  const percent = Math.min(time / duration, 1);
+                  window.scrollTo(0, startingY + targetOffset * percent);
+                  if (time < duration) {
+                    window.requestAnimationFrame(step);
+                  }
+                };
+              
+                window.requestAnimationFrame(step);
+              };
               return (
-                <div key={category} className="w-full mt-12 flex flex-col">
-                  <p className="font-semibold text-xl text-dark mb-6">
-                    {category}
-                  </p>
-                  <div className="py-6 px-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
-                    {items.map(
-                      (item: any) =>
-                        (item.isShowing || item.enable_showing) && (
-                          <div
-                            key={item.name}
-                            onClick={
-                              item.isAvailable
-                                ? () => handleMenuItemClick(item)
-                                : undefined
-                            }
-                            className={`relative flex flex-col w-full border border-lightdark border-solid h-32 rounded-xl bg-white px-4 py-2 ${
-                              item.isAvailable
-                                ? "hover:bg-smoke cursor-pointer duration-300"
-                                : "bg-gray-300 cursor-not-allowed"
-                            }`}
-                          >
-                            {!item.isAvailable && (
-                              <div
-                                style={{ top: -1, right: -1 }}
-                                className="absolute  bg-primary text-white px-2 py-0 rounded-bl-lg"
-                              >
-                                OUT
-                              </div>
-                            )}
-                            <div className="h-1/4 flex-nowrap overflow-hidden">
-                              <p className="text-dark">{item.name}</p>
-                            </div>
-                            <div className="h-2/4 py-1 overflow-hidden text-dark text-sm">
-                              <p
-                                className="overflow-hidden -webkit-line-clamp-2"
-                                style={{
-                                  display: "-webkit-box",
-                                  WebkitBoxOrient: "vertical",
-                                  lineHeight: "1.7",
-                                  padding: "0",
-                                  margin: "0",
-                                }}
-                              >
-                                {item.desc}
-                              </p>
-                            </div>
-                            <div className="h-1/4">
-                              <p className="text-dark">
-                                $
-                                {new Intl.NumberFormat("en-US", {
-                                  style: "decimal",
-                                  minimumFractionDigits: 2,
-                                  maximumFractionDigits: 2,
-                                }).format(item.price)}
-                              </p>
-                            </div>
-                          </div>
-                        )
-                    )}
-                  </div>
+                
+                <div key={category}   className=" xl:text-lg lg:text-small md:text-small sm:text-xs hover:scale-105 hover:underline flex flex-1 items-center justify-center w-full mt-4 ">
+                    <button 
+                    className=" font-semibold xl:text-sm lg:text-sm md:text-sm sm:text-xs text-dark mb-6"
+                    onClick={() => handleMenuLinkClick(category)}
+                  >
+                   <p>{category}</p>
+                  </button>
                 </div>
+              
               );
             })}
+            </div>
+
+            <hr className={`   border-t border-gray-500 bg-white  ${isSticky && !modalOpen ? 'z-10 fixed w-2/3 top-36 left-0 pr-10  '  : 'relative'}`}/>
+            
+      {Object.entries(restaurant.menus)
+
+.filter(([category]) => category !== "properties")
+.map(([category, items, index]) => {
+  
+  const categoryProperties = restaurant.menus.properties.find(
+    (property: any) => property.name === category
+      );
+  if (categoryProperties && !(categoryProperties.isShowing || categoryProperties.enable_showing)) {
+    
+    return null; // Skip the category if isShowing is false
+  }
+  
+  return (
+    <div key={category} ref={(el) => (menuSectionRefs.current[category] = el)} id={`menu-section-${category}`}  className="w-full mt-12 flex flex-col ">
+      <p className="font-semibold text-xl text-dark mb-6 ">
+       {category}
+      </p>
+      
+      <div className="py-6 px-4 grid grid-cols-1 lg:grid-cols-2 gap-4 ">
+        {items.map(
+          (item: any) =>
+            (item.isShowing || item.enable_showing) && (
+              <div
+                key={item.name}
+                onClick={
+                  item.isAvailable
+                    ? () => handleMenuItemClick(item)
+                    : undefined
+                }
+                className={` relative flex flex-col w-full border border-lightdark border-solid h-32 rounded-xl bg-white px-4 py-2  ${
+                  item.isAvailable
+                    ? "hover:bg-smoke cursor-pointer duration-300"
+                    : "bg-gray-300 cursor-not-allowed"
+                }`}
+              >
+                {!item.isAvailable && (
+                  <div
+                    style={{ top: -1, right: -1 }}
+                    className=" absolute  bg-primary text-white px-2 py-0 rounded-bl-lg"
+                  >
+                    OUT
+                  </div>
+                )}
+                <div className=" h-1/4 flex-nowrap overflow-hidden">
+                  <p className=" text-dark">{item.name}</p>
+                </div>
+                <div className=" h-2/4 py-1 overflow-hidden text-dark text-sm">
+                  <p
+                    className=" overflow-hidden -webkit-line-clamp-2"
+                    style={{
+                      display: "-webkit-box",
+                      WebkitBoxOrient: "vertical",
+                      lineHeight: "1.7",
+                      padding: "0",
+                      margin: "0",
+                    }}
+                  >
+                    {item.desc}
+                  </p>
+                </div>
+                <div className=" h-1/4">
+                  <p className=" text-dark">
+                    $
+                    {new Intl.NumberFormat("en-US", {
+                      style: "decimal",
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    }).format(item.price)}
+                  </p>
+                </div>
+              </div>
+            )
+        )}
+      </div>
+    </div>
+  );
+})}
+            
         </div>
-        <div className=" lgl:w-1/3 lg:w-2/5 sm:w-full md:w-3/4 mdl:w-1/2 flex flex-col mx-auto sm:px-4 md:px-2 lg:px-2 lgl:px-2 items-center">
+        <div className="  lgl:w-1/3 lg:w-2/5 sm:w-full md:w-3/4 mdl:w-1/2 flex flex-col mx-auto sm:px-4 md:px-2 lg:px-2 lgl:px-2 items-center   ">
           <p className="text-xl font-semibold text-dark">Methods Available</p>
-          <div className="w-full flex flex-row gap-4 justify-center items-center mt-4">
+          <div className="w-full flex flex-row gap-4 justify-center items-center mt-4 ">
             <div className="flex flex-row gap-12">
               <FaStore size={50} color={colors.brand.primary} />
               {/* <div className="flex bg-primary w-36 h-auto justify-center items-center rounded-full py-1">
@@ -314,7 +426,7 @@ export const RestaurantPage: React.FC<RestaurantPageProps> = ({
           </div>
 
           {/* cart starts here - making cart sticky so users can see as they scroll */}
-          <div className="mt-8 min-w-full border-lightdark border-solid border rounded-xl w-full items-center sticky top-36">
+          <div className="mt-8 min-w-full border-lightdark border-solid border rounded-xl w-full items-center sticky top-24 ">
             <div className="px-8 py-4 border-b border-lightdark border-solid border-1 flex flex-row justify-between">
               <p className="font-semibold text-dark">Current Cart</p>
               <p className="font-semibold text-dark lg:mr-2">
