@@ -14,8 +14,11 @@ import HourDisplay from "./HoursDisplay";
 import OpenStatus from "./OpenStatus";
 import { FaCarSide } from "react-icons/fa";
 import { FaStore } from "react-icons/fa";
+import { FaCaretRight } from "react-icons/fa";
+import { FaCaretLeft } from "react-icons/fa";
 import { colors } from "@/infastructure/theme/colors";
 import { isRestaurantAndMenuOpen } from "./RestaurantCard";
+
 
 interface MenuItemProps {
   name: string;
@@ -114,30 +117,63 @@ export const RestaurantPage: React.FC<RestaurantPageProps> = ({
     return formattedStartTime + " - " + formattedEndTime;
   };
 
-
-
-
-
-// Function to scroll to a category section
-
-
+const [showLeftButton, setShowLeftButton] = useState(false);
+const [showRightButton, setShowRightButton] = useState(true);
 
 const [isSticky, setIsSticky] = useState(false);
 const stickyMenuRef = useRef<HTMLDivElement>(null);
-const menuSectionRefs = React.useRef<HTMLDivElement[]>([]);
+const menuSectionRefs = useRef<HTMLDivElement[]>([]);
 
+const scrollableRef = useRef<HTMLDivElement>(null);
 
+// Function to scroll to a category section
+const handleScroll = () => {
+  const scrollableElement = scrollableRef.current;
+  if (scrollableElement) {
+    const { scrollLeft, scrollWidth, clientWidth } = scrollableElement;
+    const isScrolledToStart = scrollLeft === 0;
+    const isScrolledToEnd = scrollLeft === scrollWidth - clientWidth;
 
+    setShowLeftButton(!isScrolledToStart);
+    setShowRightButton(!isScrolledToEnd);
+  }
+};
+useEffect(() => {
+  const scrollableElement = scrollableRef.current;
+  if (scrollableElement) {
+    scrollableElement.addEventListener('scroll', handleScroll);
+    return () => {
+      scrollableElement.removeEventListener('scroll', handleScroll);
+    };
+  }
+}, []);
+
+const scrollLeft = () => {
+  if (scrollableRef.current) {
+    scrollableRef.current.scrollBy({
+    left: -300, // Adjust the scroll distance as needed
+      behavior: 'smooth',
+});
+}
+};
+
+  const scrollRight = () => {
+    if (scrollableRef.current) {
+    scrollableRef.current.scrollBy({
+    left: 300, // Adjust the scroll distance as needed
+      behavior: 'smooth',
+});
+}
+};
 
 
 function StickyHeader() {
   
-
-  useEffect(() => {
+useEffect(() => {
     const handleScroll = () => {
       const scrollTop = window.scrollY || document.documentElement.scrollTop;
-      const bottomOffset = document.documentElement.scrollHeight - window.innerHeight;
-      setIsSticky(scrollTop > bottomOffset * 0.1);
+      const triggerPixels = 700;
+      setIsSticky(scrollTop > triggerPixels );
 
       // Stick when the user has scrolled more than 70% of the way down
        // Adjust the factor as needed
@@ -150,36 +186,39 @@ function StickyHeader() {
   }, [isSticky]);
 }
 StickyHeader()
+const [searchTerm, setSearchTerm] = useState('');
 
-
-
-
-  return (
-    <div className="w-full h-full flex-1">
-      <div className="w-full h-12 lg:h-14 bg-white justify-center items-center flex flex-row flex-nowrap z-5">
-        <div className="w-full justify-start px-10 basis-full lg:flx-basis-1/4 py-2 lg:py-0 ">
+const handleSearch = (event) => {
+  setSearchTerm(event.target.value);
+};
+ return (
+  
+    
+    <div className="w-full h-full flex-1  ">
+      <div className=" w-full h-12 lg:h-14  bg-white justify-center items-center flex flex-row flex-nowrap  z-5 ">
+        <div className=" w-full justify-start px-10 basis-full lg:flx-basis-1/4 py-2 lg:py-0 ">
           <p
             onClick={() => {
               handleBackButtonClick();
             }}
-            className="font-semibold  hover:text-lightdark duration-200  cursor-pointer text-dark w-10"
+            className="font-semibold  hover:text-lightdark duration-200  cursor-pointer text-dark w-10 "
           >
             Back
           </p>
         </div>
 
-        <div className="hidden lg:flex flex-col whitespace-nowrap items-center justify-center w-1/2 px-4">
+        <div className="hidden lg:flex flex-col whitespace-nowrap items-center justify-center w-1/2 px-4 ">
           <div>
-            <p className="font-semibold px-2 text-dark basis-full flx-basis-1/4 py-0 text-md">
+            <p className="font-semibold px-2 text-dark basis-full flx-basis-1/4 py-0 text-md ">
               For Rewards & Discounts Download App
             </p>
           </div>
-          <div className="flex flex-row">
+          <div className="flex flex-row  ">
             <Link
               href="https://apps.apple.com/us/app/appymeal/id6443683011"
               className="basis-full flx-basis-1/4  py-0"
             >
-              <p className="font-semibold px-2 hover:text-lightdark duration-200 cursor-pointer text-dark">
+              <p className="font-semibold px-2 hover:text-lightdark duration-200 cursor-pointer text-dark ">
                 Download iOS
               </p>
             </Link>
@@ -187,7 +226,7 @@ StickyHeader()
               href="https://play.google.com/store/apps/details?id=com.zowen1.AppyMeal&hl=en_US&gl=US"
               className="basis-full flx-basis-1/4  py-0"
             >
-              <p className="font-semibold px-2 hover:text-lightdark duration-200 cursor-pointer text-dark">
+              <p className="font-semibold px-2 hover:text-lightdark duration-200 cursor-pointer text-dark ">
                 Download Android
               </p>
             </Link>
@@ -195,25 +234,24 @@ StickyHeader()
         </div>
       </div>
       {/* TOP NAVBAR FOR RESTAURANTS */}
-      <div className = "flex flex-row items-center ">
-      <div className="p-4 ml-28  bg-smoke w-1/4 h-1/3  flex flex-col pg-4 gap-2  px-8 lg:px-16 justify-between rounded-md">
-        <div className="flex flex-col md:flex-row items-center">
-          <div className="justify-start">
+     
+      <div className="     bg-smoke w-full h-40  items-center  flex pg-4 gap-2  px-8 lg:px-16  justify-between ">
+        <div className="flex flex-col md:flex-row items-center  ">
+          <div className="justify-start ">
             <Image
               src={restaurant.photo}
-              width={150}
-              height={150}
+              width={125}
+              height={125}
               alt="restaurantLogo"
-              className="object-cover rounded-xl cursor-pointer"
+              className="object-cover rounded-xl cursor-pointer "
               // onClick={() => {
               //   router.push(`restaurants/${restaurant.name}`);
               // }}
             />
           </div>
-          <div className="hidden md:flex md:flex-col justify-start pl-8">
-            
+          <div className="hidden md:flex md:flex-col justify-start pl-8 ">
             <p
-              className="font-semibold text-sm md:text-xl hover:text-lightdark duration-200 cursor-pointer text-dark bg-smoke"
+              className="font-semibold text-xs md:text-lg hover:text-lightdark duration-200 cursor-pointer text-dark bg-smoke "
               // onClick={() => {
               //   router.push(`restaurants/${restaurant.name}`);
               // }}
@@ -222,56 +260,85 @@ StickyHeader()
             </p>
           </div>
         </div>
-        <div className=" bg-smoke flex flex-col justify-start items-start gap-1 md:gap-0 ml-2 md:ml-0">
-          <p className="text-dark text-sm md:text-lg">
+        <div className="  flex flex-col justify-start items-start gap-1 md:gap-0 ml-2 md:ml-0  ">
+          <p className="text-dark text-sm md:text-lg ">
             {restaurant.address || restaurant.address_line_1}, {restaurant.city || restaurant.address_city}, {restaurant.state || restaurant.address_state_province_id}
           </p>
-          <HourDisplay hours={restaurant.hours} />
+          <HourDisplay  hours={restaurant.hours} />
           <OpenStatus restaurant={restaurant} militaryTime={militaryTime} />
 
-          <div className="md:hidden text-sm text-dark">
+          <div className="md:hidden text-sm  text-dark ">
             <p>{restaurant.name}</p>
           </div>
         </div>
       </div>
-      <p className="ml-10 w-1/3 text-dark font-semibold bg-smoke p-6 rounded-md">{restaurant.desc || restaurant.description}</p>
-      </div>
-      <div className="w-full h-full flex flex-row flex-wrap lg:flex-nowrap  py-12 ">
-        <div className="basis-full lg:basis-2/3 lg:flex-1 flex-auto flex flex-col  px-4 lg:px-16">
+    
+      <div className=" w-full h-full flex flex-row flex-wrap lg:flex-nowrap  py-12 border  ">
+        <div className="  basis-full lg:basis-2/3 lg:flex-1 flex-auto flex flex-col px-4 lg:px-16  ">
+
+        <p className="  text-dark    ">{restaurant.desc || restaurant.description}</p>
           
           {/* restaurant photos extra */}
-          <div className="mt-12 flex flex-row w-full overflow-x-scroll md:overflow-x-auto md:flex-wrap">
+          <div className="mt-12    flex flex-row  w-full overflow-x-scroll md:overflow-x-auto  md:flex-wrap   ">
             {restaurant.images.map((image: string) => {
               return (
                 <div
                   key={image.substring(15)}
-                  className="flex-none md:flex-auto justify-center my-2 md:w-1/2 xl:w-1/3 h-80 lg:h-60 overflow-hidden"
+                  className=" flex-none md:flex-auto justify-center my-2 md:w-1/2 xl:w-1/3 h-80 lg:h-60 overflow-hidden  "
                 >
-                  <div className="rounded-xl overflow-hidden h-80 lg:h-60 mx-4">
+                  <div className=" rounded-xl overflow-hidden h-full mx-4  ">
                     <Image
                       src={image}
                       width={300}
                       height={300} // Adjust this to the desired height
                       alt="restaurantLogo"
-                      className="rounded-xl object-cover h-full overflow-hidden hover:scale-105"
+                      className=" rounded-xl object-cover h-full overflow-hidden hover:scale-105"
                     />
                   </div>
                 </div>
               );
             })}
           </div>
-          {}
-          {}
-          {/* MENU ITEMS START */}
-          <hr className = "mt-10 mb-0"/>
-          <div   ref={stickyMenuRef} className = {`xl:text-lg lg:text-small md:text-small sm:text-xs flex flex-row  justify-center  bg-white  ${isSticky && !modalOpen ? 'z-10 fixed w-8/12 top-20 left-0 mr-10' : 'relative'}`} >
+          
+          {/* MENU ITEMS START*/}
 
-          {/* clickable menu scroll links*/}  
+          <button
+          className= {`  top-1/2    -translate-y-1/2  w-8 h-8  "   
+            ${isSticky && !modalOpen ? ' fixed z-30 top-24 translate-y-2 left-10 md:left-0 sm:left-0 ' :
+               'xl:ml-10 sm:-ml-0 z-20   xl:-translate-x-20 translate-y-16 '} 
+              ${Object.entries(restaurant.menus).length > 10 && showLeftButton && !modalOpen ? " " : "hidden"}`}
+               onClick={scrollLeft}
+        >
+         <FaCaretLeft size={30} color={colors.brand.primary} />
+        </button>
+        <div className={` ${showLeftButton ? "hidden" : "w-8 h-8"}`}></div>
+        <button
+          className= {`    top-1/2    -translate-y-1/2  w-8 h-8 items-center justify-center   "   
+            ${isSticky && !modalOpen ? '   fixed ml-auto z-30 top-28 mt-2 xl:transform   xl:right-0 lg:right-0 md:right-0 sm:right-0  ' 
+              : ' xl:translate-x-8 md:translate-x-0 z-20 flex  ml-auto translate-y-9  '}
+             ${Object.entries(restaurant.menus).length > 11  && showRightButton && !modalOpen ? " " : " hidden"}`}
+
+              onClick={scrollRight}
+        >
+          <FaCaretRight size={30} color={colors.brand.primary} />
+          
+        </button>  
+        <div className={` ${showRightButton ? "hidden " : "w-8 h-8  "}`}></div> {/* Placeholder for right arrow */}
+    
+     <div   ref={scrollableRef}  className = {`  py-2 flex flex-1 border-b-[1px] border-b-dark xl:text-lg lg:text-small md:text-small sm:text-xs overflow-x-hidden bg-white  
+      ${isSticky && !modalOpen ? 'left-0 xl:-ml-0 lg:-ml-0 fixed z-10 w-screen top-20  ' 
+        : ' bottom-20 -mt-10 w-full xl:max-w-smallContainer lg:max-w-smallContainer md:max-w-fullViewPort100 sm:max-w-fullViewPort'}  
+      ${Object.entries(restaurant.menus).length < 6 ? 'justify-center gap-32  ' : 'items-center h-20 xl:justify-between md:justify-start'}`} >
+          
+          {/* clickable menu scroll links*/} 
+          
           {Object.entries(restaurant.menus)
+          
             .filter(([category]) => category !== "properties")
             .map(([category, index] ) => {
               const handleMenuLinkClick = (category: string) => {
                 const targetSection = menuSectionRefs.current[category];
+                console.log("Object.entries(restaurant.menus")
                 if (targetSection) {
                   const sectionRect = targetSection.getBoundingClientRect();
                   const sectionTop = sectionRect.top;
@@ -294,6 +361,9 @@ StickyHeader()
                   
                 }
               };
+                
+
+        
               const scrollToWithDuration = (targetOffset: number, duration: number) => {
                 const startingY = window.pageYOffset;
                 let start: number | null = null;
@@ -312,24 +382,47 @@ StickyHeader()
               };
               return (
                 
-                <div key={category}   className=" xl:text-lg lg:text-small md:text-small sm:text-xs hover:scale-105 hover:underline flex flex-1 items-center justify-center w-full mt-4 ">
+                <div key="searchBar" className = "px-6 py-2">
+                   
+                <div key={category}  className="xl:text-lg lg:text-small md:text-small sm:text-xs hover:scale-105 hover:underline items-center justify-center overflow-hidden">
                     <button 
-                    className=" font-semibold xl:text-sm lg:text-sm md:text-sm sm:text-xs text-dark mb-6"
+                    className="text-center font-semibold xl:text-sm lg:text-sm md:text-sm sm:text-xs text-dark"
                     onClick={() => handleMenuLinkClick(category)}
                   >
-                   <p>{category}</p>
+                   <div className="">{category}</div>
                   </button>
+                  
+                </div>
                 </div>
               
               );
             })}
             </div>
-
-            <hr className={`   border-t border-gray-500 bg-white  ${isSticky && !modalOpen ? 'z-10 fixed w-2/3 top-36 left-0 pr-10  '  : 'relative'}`}/>
             
-      {Object.entries(restaurant.menus)
 
+            <div>
+      <div>
+      <div className=" mt-4 text-center rounded-full">
+        <input
+          type="text"
+          placeholder="Search menu items..."
+          value={searchTerm}
+          onChange={handleSearch}
+          className={` "  duraction-200 shadow-md bg-smoke text-dark text-base outline-none border-[1px] border-dark focus-visible:border-dark  px-4 py-3 
+            rounded-full  focus:ring-1 focus:ring-dark mt-1"  
+            ${isSticky && !modalOpen ? 'xl:bg-white lg:bg-white md:bg-white sm:bg-smoke xl:translate-y-2 lg:translate-y-2 md:translate-y-2 sm:-translate-y-3 xl:mr-extra-large xl:ml-extra-large md:mr-64 md:ml-64 sm:mr-2 sm:ml-2 xl:top-2 lg:top-2 md:top-2 sm:top-44  left-0 right-0   fixed z-40 ' : 'relative w-3/4 -mb-6 mt-6  '} `}
+        />
+      </div> 
+      </div>      
+           
+      {Object.entries(restaurant.menus)
+      .filter(([category, items]) =>
+        items.some((item) =>
+          item.name.toLowerCase().includes(searchTerm.toLowerCase())
+        )
+        )
 .filter(([category]) => category !== "properties")
+
 .map(([category, items, index]) => {
   
   const categoryProperties = restaurant.menus.properties.find(
@@ -339,15 +432,25 @@ StickyHeader()
     
     return null; // Skip the category if isShowing is false
   }
+  const filteredItems = items.filter((item) =>
+    item.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
   
   return (
-    <div key={category} ref={(el) => (menuSectionRefs.current[category] = el)} id={`menu-section-${category}`}  className="w-full mt-12 flex flex-col ">
-      <p className="font-semibold text-xl text-dark mb-6 ">
+   <div 
+    key={category} 
+    ref={(el) => (menuSectionRefs.current[category] = el)} 
+    id={`menu-section-${category}`} 
+    className="  w-full mt-12 flex flex-col "
+    >
+      <p className="font-semibold text-xl text-dark mb-6    ">
        {category}
       </p>
       
-      <div className="py-6 px-4 grid grid-cols-1 lg:grid-cols-2 gap-4 ">
-        {items.map(
+      {filteredItems.length > 0 ? (
+      
+        <div className="   py-6 px-4 grid grid-cols-1 lg:grid-cols-2 gap-4  ">
+        {filteredItems.map(
           (item: any) =>
             (item.isShowing || item.enable_showing) && (
               <div
@@ -357,7 +460,7 @@ StickyHeader()
                     ? () => handleMenuItemClick(item)
                     : undefined
                 }
-                className={` relative flex flex-col w-full border border-lightdark border-solid h-32 rounded-xl bg-white px-4 py-2  ${
+                className={` relative flex flex-col border  border-lightdark border-solid h-32  rounded-xl bg-white px-4 py-2  ${
                   item.isAvailable
                     ? "hover:bg-smoke cursor-pointer duration-300"
                     : "bg-gray-300 cursor-not-allowed"
@@ -366,15 +469,15 @@ StickyHeader()
                 {!item.isAvailable && (
                   <div
                     style={{ top: -1, right: -1 }}
-                    className=" absolute  bg-primary text-white px-2 py-0 rounded-bl-lg"
+                    className=" absolute bg-primary text-white px-2 py-0 rounded-bl-lg"
                   >
                     OUT
                   </div>
                 )}
-                <div className=" h-1/4 flex-nowrap overflow-hidden">
+                <div className="h-1/4 flex-nowrap overflow-hidden  text-dark text-sm ">
                   <p className=" text-dark">{item.name}</p>
                 </div>
-                <div className=" h-2/4 py-1 overflow-hidden text-dark text-sm">
+                <div className="  h-2/4 py-1 overflow-hidden text-dark text-sm">
                   <p
                     className=" overflow-hidden -webkit-line-clamp-2"
                     style={{
@@ -388,7 +491,7 @@ StickyHeader()
                     {item.desc}
                   </p>
                 </div>
-                <div className=" h-1/4">
+                <div className="h-1/4 ">
                   <p className=" text-dark">
                     $
                     {new Intl.NumberFormat("en-US", {
@@ -402,12 +505,33 @@ StickyHeader()
             )
         )}
       </div>
+      ): null}
+      
     </div>
+    
   );
 })}
-            
-        </div>
-        <div className="  lgl:w-1/3 lg:w-2/5 sm:w-full md:w-3/4 mdl:w-1/2 flex flex-col mx-auto sm:px-4 md:px-2 lg:px-2 lgl:px-2 items-center   ">
+</div> 
+{Object.entries(restaurant.menus)
+  .filter(([category, items]) =>
+    items.some((item) =>
+      item.name.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+  )
+  .filter(([category]) => category !== "properties")
+  .every(([category, items]) => {
+    const filteredItems = items.filter((item) =>
+      item.name.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+    return filteredItems.length === 0;
+  }) && <div><p className="text-gray-500 text-4xl text-center mt-10 md:mb-20   ">Item not available</p></div>}
+
+  </div>
+
+           
+        
+        
+        <div className="lgl:w-1/3 lg:w-2/5 md:w-3/4 sm:w-full mdl:w-1/2  flex flex-col mx-auto sm:px-4 md:px-2 lg:px-2 lgl:px-2 items-center lg:order-3 md:order-3 sm:order-3">
           <p className="text-xl font-semibold text-dark">Methods Available</p>
           <div className="w-full flex flex-row gap-4 justify-center items-center mt-4 ">
             <div className="flex flex-row gap-12">
@@ -426,7 +550,7 @@ StickyHeader()
           </div>
 
           {/* cart starts here - making cart sticky so users can see as they scroll */}
-          <div className="mt-8 min-w-full border-lightdark border-solid border rounded-xl w-full items-center sticky top-24 ">
+          <div className=" min-w-full mt-8 border-lightdark border-solid border rounded-xl w-full  items-center sticky top-44  md:order-3">
             <div className="px-8 py-4 border-b border-lightdark border-solid border-1 flex flex-row justify-between">
               <p className="font-semibold text-dark">Current Cart</p>
               <p className="font-semibold text-dark lg:mr-2">
@@ -454,7 +578,7 @@ StickyHeader()
                   </p>
                 </div>
               )}
-              <div className="px-2 py-2 overflow-y-auto max-h-[50vh]">
+              <div className="px-2 py-2 overflow-y-auto max-h-[50vh]                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            ">
                 <div className="grid grid-cols-3 gap-4 items-center mb-4">
                   <p className="underline underline-offset-2 decoration-dark decoration-1">
                     Items
@@ -498,7 +622,7 @@ StickyHeader()
                       item.modifiers.some(
                         (modifier: any) => modifier !== null
                       ) && (
-                        <div className="overflow-x-auto relative top-0 left-0 px-2 py-0 space-x-1 flex flex-row max-w-full mb-2">
+                        <div className=" overflow-x-auto relative top-0 left-0 px-2 py-0 space-x-1 flex flex-row max-w-full mb-2">
                           {item.modifiers.map((option: any, index: number) => {
                             if (option !== null) {
                               return (
@@ -546,6 +670,7 @@ StickyHeader()
         }}
       />
     </div>
+    
   );
 };
 
