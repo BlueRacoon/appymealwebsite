@@ -17,9 +17,9 @@ const Footer = () => {
     : "https://www.linkedin.com/company/appymeal/?viewAsMember=true";
 
   return (
-    <div className="w-full bg-dark text-white pt-4 pb-6">
+    <div className="z-10 w-full bg-dark text-white pt-4 pb-6">
       <div className="max-w-contentContainer mx-auto">
-        <ul className="w-full flex flex-wrap gap-1 justify-center text-sm text-zinc-200">
+        <ul className="w-full flex flex-wrap gap-4 justify-center text-sm text-zinc-200">
           <Link href="/">
             <li className="bottomFooterHover">Home</li>
           </Link>
