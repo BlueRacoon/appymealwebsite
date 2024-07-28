@@ -103,7 +103,7 @@ const SearchBar = () => {
   
 
   return (
-    <div className= " -mt-16 h-12 w-4/12 flex flex-1 justify-center z-40 fixed top-20 z-40 ">
+    <div className= " -mt-16 h-12 xl:w-1/3 md:w-2/5 sm:w-2/3  flex flex-1 justify-center fixed xl:top-20 lg:top-20 md:top-20 sm:top-40  md:mr-20 sm:ml-12 z-40 ">
       
       <input
         id={RESTAURANT_INPUT_ID}
