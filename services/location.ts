@@ -126,7 +126,7 @@ const searchRestaurantsByLocation = ({
   const query = new URLSearchParams(params);
   return axios({
     method: 'get',
-    url: `${process.env.NEXT_PUBLIC_API_HOST}v1/restaurants-service/search-by-location?${query.toString()}`,
+    url: `${process.env.NEXT_PUBLIC_API_HOST}v1/restaurants-service/restaurants/search-by-location?${query.toString()}`,
   }).then((response) => {
     const pgRestaurantsMap = response.data?.results?.reduce((acc: any, cur: any) => {
       acc[cur.id] = cur;
