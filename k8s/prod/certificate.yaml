@@ -11,6 +11,8 @@ spec:
   dnsNames:
     - 'appymeal.com'
     - 'www.appymeal.com'
+    - 'dashboard.appymeal.com'
+    - 'www.dashboard.appymeal.com'
     - 'api.appymeal.com'
     - 'demo-whitelabel.appymeal.com'
   duration: 4320h # 180d
