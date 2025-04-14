@@ -34,6 +34,8 @@ spec:
   - hosts:
       - appymeal.com
       - www.appymeal.com
+      - dashboard.appymeal.com
+      - www.dashboard.appymeal.com
       - api.appymeal.com
       - demo-whitelabel.appymeal.com
     secretName: appymeal-network-secret
@@ -57,6 +59,26 @@ spec:
             name: web-frontend-cluster-ip-service
             port:
               number: 3000
+        pathType: ImplementationSpecific
+  - host: dashboard.appymeal.com
+    http:
+      paths:
+      - path: /?(.*)
+        backend:
+          service:
+            name: web-dashboard-frontend-cluster-ip-service
+            port:
+              number: 3001
+        pathType: ImplementationSpecific
+  - host: www.dashboard.appymeal.com
+    http:
+      paths:
+      - path: /?(.*)
+        backend:
+          service:
+            name: web-dashboard-frontend-cluster-ip-service
+            port:
+              number: 3001
         pathType: ImplementationSpecific
   - host: api.appymeal.com
     http:
