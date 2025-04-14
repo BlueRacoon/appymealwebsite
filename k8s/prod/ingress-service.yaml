@@ -68,7 +68,7 @@ spec:
           service:
             name: web-dashboard-frontend-cluster-ip-service
             port:
-              number: 3001
+              number: 3002
         pathType: ImplementationSpecific
   - host: www.dashboard.appymeal.com
     http:
@@ -78,7 +78,7 @@ spec:
           service:
             name: web-dashboard-frontend-cluster-ip-service
             port:
-              number: 3001
+              number: 3002
         pathType: ImplementationSpecific
   - host: api.appymeal.com
     http:
